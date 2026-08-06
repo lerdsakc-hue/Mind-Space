@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mind Space - แบบประเมินความเครียด 30 ข้อ & ระบบสถิติ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Prompt', 'sans-serif'] },
+                    colors: {
+                        mind: { 50: '#f0fdfa', 100: '#ccfbf1', 200: '#99f6e4', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e', 800: '#115e59', 900: '#134e4a' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Prompt', sans-serif; background: linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 100%); min-height: 100vh; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .card-hover { transition: all 0.2s ease; }
+        .card-hover:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body class="text-slate-800 antialiased flex flex-col justify-between min-h-screen">
+
+    <!-- ==========================================
+         MODULE 1: LAYOUT & STYLING (HEADER & NAV)
+         ========================================== -->
+    <header class="w-full bg-white/80 backdrop-blur-md border-b border-teal-100 py-4 px-6 sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="showScreen('welcome-screen')">
+                <div class="w-10 h-10 rounded-xl bg-mind-600 flex items-center justify-center text-white shadow-md shadow-mind-600/20">
+                    <i class="fa-solid fa-heart-pulse text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-xl text-slate-800 leading-tight">Mind Space</h1>
+                    <p class="text-xs text-mind-600 font-medium">คัดกรอง & ฮีลใจ</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="openStatsScreen()" class="px-4 py-2 bg-mind-50 hover:bg-mind-100 text-mind-700 rounded-xl font-medium text-sm transition-all flex items-center gap-2 border border-mind-100">
+                    <i class="fa-solid fa-chart-pie text-mind-600"></i> สถิติ & ประวัติ
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-8 flex-grow w-full">
+        <!-- ==========================================
+             MODULE 1 & 2: WELCOME & ASSESSMENT SCREENS
+             ========================================== -->
+        <div id="welcome-screen" class="bg-white rounded-3xl shadow-xl p-8 md:p-12 w-full border border-teal-50 fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
+                <div>
+                    <h2 class="text-2xl md:text-4xl font-bold text-slate-800 mb-2 leading-relaxed">สำรวจใจ... <span class="text-mind-600">ให้เราช่วยดูแล</span></h2>
+                    <p class="text-slate-600 text-base">แบบประเมินความเครียด 30 ข้อ พร้อมระบบเก็บสถิติส่วนบุคคลและคำแนะนำกิจกรรมฮีลใจ</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 my-8">
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+                    <i class="fa-solid fa-list-check text-2xl text-mind-600 mb-2"></i>
+                    <div class="font-bold text-sm text-slate-700">30 คำถามมาตรฐาน</div>
+                    <div class="text-xs text-slate-500">ประเมินครอบคลุม 4 ด้าน</div>
+                </div>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+                    <i class="fa-solid fa-chart-line text-2xl text-mind-600 mb-2"></i>
+                    <div class="font-bold text-sm text-slate-700">บันทึกสถิติอัตโนมัติ</div>
+                    <div class="text-xs text-slate-500">ติดตามแนวโน้มอารมณ์</div>
+                </div>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+                    <i class="fa-solid fa-spa text-2xl text-mind-600 mb-2"></i>
+                    <div class="font-bold text-sm text-slate-700">Healing Hub</div>
+                    <div class="text-xs text-slate-500">แนะนำ หนัง เพลง เกม หนังสือ</div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button onclick="startAssessment()" class="flex-1 px-8 py-4 bg-mind-600 hover:bg-mind-700 text-white font-semibold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3">
+                    เริ่มทำแบบประเมิน <i class="fa-solid fa-arrow-right"></i>
+                </button>
+                <button onclick="openStatsScreen()" class="px-6 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-2xl transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left"></i> ดูสถิติย้อนหลัง
+                </button>
+            </div>
+        </div>
+
+        <div id="quiz-screen" class="hidden bg-white rounded-3xl shadow-xl p-6 md:p-10 w-full border border-teal-50 fade-in">
+            <div class="mb-6">
+                <div class="flex justify-between items-center text-xs font-medium text-slate-500 mb-2">
+                    <span id="question-count" class="text-mind-700 font-bold"></span>
+                    <span id="progress-percent"></span>
+                </div>
+                <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-mind-600 transition-all duration-300 rounded-full"></div>
+                </div>
+            </div>
+            <div class="my-8 min-h-[80px]">
+                <h3 id="question-text" class="text-xl md:text-2xl font-bold text-slate-800"></h3>
+            </div>
+            <div id="options-container" class="space-y-3 mb-8">
+                <!-- Options generated by JS -->
+            </div>
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                <button id="prev-btn" onclick="prevQuestion()" class="px-5 py-2 text-slate-600 hover:bg-slate-50 font-medium text-sm disabled:opacity-30">
+                    <i class="fa-solid fa-chevron-left mr-1"></i> ย้อนกลับ
+                </button>
+            </div>
+        </div>
+
+        <div id="result-screen" class="hidden fade-in">
+            <div class="bg-white rounded-3xl shadow-xl p-6 md:p-10 mb-8 border border-teal-50">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800">ผลการประเมินของคุณ</h2>
+                    <p class="text-xs text-emerald-600 font-medium mt-1"><i class="fa-solid fa-circle-check"></i> บันทึกข้อมูลเข้าสู่ระบบสถิติแล้ว</p>
+                </div>
+                <div id="result-box" class="rounded-3xl p-6 text-center border mb-6">
+                    <div class="text-4xl md:text-6xl font-extrabold mb-2"><span id="final-score">0</span><span class="text-xl opacity-50">/120</span></div>
+                    <div id="result-badge" class="inline-block px-4 py-1 rounded-full text-sm font-bold shadow-sm"></div>
+                    <p id="result-description" class="mt-4 text-slate-600"></p>
+                </div>
+                
+                <div class="bg-mind-50/50 rounded-2xl p-5 border border-mind-100 mb-6">
+                    <h4 class="font-bold text-mind-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-lightbulb"></i> คำแนะนำเบื้องต้น</h4>
+                    <ul id="recommendations-list" class="text-sm text-slate-700 space-y-2 list-disc pl-5"></ul>
+                </div>
+
+                <div class="flex justify-center gap-3">
+                    <button onclick="openStatsScreen()" class="px-5 py-2.5 bg-mind-50 text-mind-700 rounded-xl font-semibold text-sm hover:bg-mind-100 transition-all border border-mind-200">
+                        <i class="fa-solid fa-chart-line mr-2"></i> เปรียบเทียบกับสถิติก่อนหน้า
+                    </button>
+                </div>
+            </div>
+
+            <!-- HEALING HUB -->
+            <div class="space-y-8">
+                <div class="flex items-center gap-3">
+                    <div class="h-8 w-1.5 bg-mind-600 rounded-full"></div>
+                    <h3 class="text-xl font-bold text-slate-800">Mind Space Healing Hub : พื้นที่ฮีลใจสำหรับคุณ</h3>
+                </div>
+
+                <div id="healing-sections" class="grid grid-cols-1 gap-8">
+                    <!-- Categories injected here -->
+                </div>
+            </div>
+
+            <div class="mt-12 flex flex-col items-center">
+                <button onclick="resetAssessment()" class="px-8 py-3 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-700 transition-all">
+                    <i class="fa-solid fa-rotate-right mr-2"></i> ทำแบบประเมินอีกครั้ง
+                </button>
+                <p class="mt-4 text-xs text-slate-400">ข้อมูลนี้เป็นการประเมินเบื้องต้น หากรู้สึกไม่สบายใจควรปรึกษาผู้เชี่ยวชาญ</p>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             MODULE 3: STATISTICS & HISTORY SCREEN
+             ========================================== -->
+        <div id="stats-screen" class="hidden fade-in space-y-8">
+            <!-- Header section for Stats -->
+            <div class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-teal-50">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                            <i class="fa-solid fa-chart-pie text-mind-600"></i> สถิติการประเมินสุขภาพจิต
+                        </h2>
+                        <p class="text-slate-500 text-sm mt-1">สรุปข้อมูลสถิติประวัติการประเมินความเครียดของคุณทั้งหมดที่บันทึกไว้</p>
+                    </div>
+                    <button onclick="showScreen('welcome-screen')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-medium text-sm transition-all">
+                        <i class="fa-solid fa-house mr-1"></i> กลับหน้าหลัก
+                    </button>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-mind-50/50 p-4 rounded-2xl border border-mind-100">
+                        <div class="text-xs font-semibold text-mind-600 mb-1">ทำแบบประเมินทั้งหมด</div>
+                        <div id="stat-total-count" class="text-3xl font-extrabold text-slate-800">0</div>
+                        <div class="text-[11px] text-slate-400 mt-1">ครั้ง</div>
+                    </div>
+                    <div class="bg-mind-50/50 p-4 rounded-2xl border border-mind-100">
+                        <div class="text-xs font-semibold text-mind-600 mb-1">คะแนนเฉลี่ย</div>
+                        <div id="stat-avg-score" class="text-3xl font-extrabold text-slate-800">0</div>
+                        <div class="text-[11px] text-slate-400 mt-1">จากเต็ม 120 คะแนน</div>
+                    </div>
+                    <div class="bg-mind-50/50 p-4 rounded-2xl border border-mind-100">
+                        <div class="text-xs font-semibold text-mind-600 mb-1">ระดับที่พบมากที่สุด</div>
+                        <div id="stat-frequent-level" class="text-lg font-bold text-slate-800 truncate my-1">-</div>
+                        <div class="text-[11px] text-slate-400">ภาพรวมสภาวะอารมณ์</div>
+                    </div>
+                    <div class="bg-mind-50/50 p-4 rounded-2xl border border-mind-100">
+                        <div class="text-xs font-semibold text-mind-600 mb-1">คะแนนล่าสุด</div>
+                        <div id="stat-latest-score" class="text-3xl font-extrabold text-slate-800">-</div>
+                        <div id="stat-latest-date" class="text-[11px] text-slate-400 mt-1">ยังไม่มีข้อมูล</div>
+                    </div>
+                </div>
+
+                <!-- Level Breakdown Progress Bars -->
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 mb-8">
+                    <h4 class="font-bold text-slate-700 mb-4 text-sm"><i class="fa-solid fa-chart-bar text-mind-600 mr-2"></i> สัดส่วนระดับความเครียดที่เคยประเมิน</h4>
+                    <div id="level-breakdown-container" class="space-y-3">
+                        <!-- Bars dynamically rendered -->
+                    </div>
+                </div>
+
+                <!-- History Timeline Table -->
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="font-bold text-slate-800 text-base"><i class="fa-solid fa-clock-rotate-left text-mind-600 mr-2"></i> รายการประวัติย้อนหลัง</h4>
+                        <button onclick="promptClearHistory()" class="px-3 py-1.5 text-xs text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg border border-rose-100 transition-all font-medium">
+                            <i class="fa-solid fa-trash-can mr-1"></i> ล้างประวัติทั้งหมด
+                        </button>
+                    </div>
+
+                    <div id="history-list-container" class="space-y-3">
+                        <!-- History cards injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- CUSTOM CONFIRMATION MODAL (NO ALERT/CONFIRM) -->
+    <div id="confirm-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-100 text-center fade-in">
+            <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-4 text-xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="font-bold text-slate-800 text-lg mb-2">ล้างประวัติสถิติทั้งหมด?</h3>
+            <p class="text-xs text-slate-500 mb-6">ข้อมูลประวัติการทำแบบทดสอบทั้งหมดจะถูกลบออกจากเครื่องของคุณ และไม่สามารถกู้คืนได้</p>
+            <div class="flex gap-3">
+                <button onclick="closeConfirmModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl transition-all">
+                    ยกเลิก
+                </button>
+                <button onclick="confirmClearHistory()" class="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold rounded-xl shadow-md transition-all">
+                    ยืนยันการลบ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="py-10 text-center border-t border-teal-50 bg-white/50">
+        <div class="max-w-4xl mx-auto px-6">
+            <div id="dev-team" class="mb-4 flex flex-wrap justify-center items-center gap-2 text-sm text-slate-600">
+                <i class="fa-solid fa-code text-mind-600"></i> พัฒนาโดย: 
+                <!-- รายชื่อถูกใส่ด้วย JS -->
+            </div>
+            <p class="text-xs text-slate-400 font-light italic">© Mind Space - พื้นที่ปลอดภัยเพื่อสุขภาพจิตที่ดี</p>
+        </div>
+    </footer>
+
+    <!-- ==========================================
+         MODULE 2, 3 & 4: JAVASCRIPT LOGIC
+         ========================================== -->
+    <script>
+        // --- รายชื่อผู้พัฒนา ---
+        const developers = ["นายเลิศศักดิ์ ชูศรี", "และคณะ"];
+
+        // --- ชุดคำถาม 30 ข้อ ---
+        const questions = [
+            "1. ฉันรู้สึกเครียดหรือกังวลโดยไม่มีสาเหตุชัดเจน", "2. ฉันรู้สึกกดดันจากการเรียนหรือการทำงาน", "3. ฉันนอนหลับยาก หลับไม่สนิท หรือหลับไม่เพียงพอ",
+            "4. ฉันรู้สึกเหนื่อยล้าแม้จะพักผ่อนแล้ว", "5. ฉันรู้สึกหงุดหงิดหรืออารมณ์เสียได้ง่าย", "6. ฉันมีสมาธิในการเรียนหรือทำงานลดลง",
+            "7. ฉันรู้สึกวิตกกังวลเกี่ยวกับอนาคต", "8. ฉันรู้สึกว่ามีปัญหาหลายอย่างที่จัดการไม่ได้", "9. ฉันรู้สึกไม่มีความสุขกับสิ่งที่เคยชอบทำ",
+            "10. ฉันรู้สึกว่าตนเองไม่มีคุณค่าหรือไม่มั่นใจในตัวเอง", "11. ฉันมีอาการปวดศีรษะจากความเครียด", "12. ฉันมีอาการปวดเมื่อยกล้ามเนื้อหรือคอและไหล่",
+            "13. ฉันมีอาการใจสั่นหรือหายใจเร็วเมื่อเครียด", "14. ฉันเบื่ออาหารหรือรับประทานอาหารมากกว่าปกติ", "15. ฉันรู้สึกหมดแรงจูงใจในการทำสิ่งต่าง ๆ",
+            "16. ฉันหลีกเลี่ยงการพบปะผู้คนเมื่อรู้สึกเครียด", "17. ฉันรู้สึกโกรธหรือโมโหง่ายกว่าปกติ", "18. ฉันรู้สึกกังวลกับความคิดเห็นของผู้อื่น",
+            "19. ฉันรู้สึกกดดันจากความคาดหวังของคนรอบตัว", "20. ฉันรู้สึกว่ามีเวลาพักผ่อนไม่เพียงพอ", "21. ฉันคิดถึงปัญหาเดิมซ้ำ ๆ จนหยุดคิดไม่ได้",
+            "22. ฉันรู้สึกไม่สามารถควบคุมอารมณ์ของตนเองได้", "23. ฉันรู้สึกว่าภาระหน้าที่มีมากเกินไป", "24. ฉันรู้สึกเครียดเมื่อมีงานหรือการบ้านจำนวนมาก",
+            "25. ฉันรู้สึกเครียดจากปัญหาทางการเงิน", "26. ฉันรู้สึกเครียดจากปัญหาความสัมพันธ์กับครอบครัวหรือเพื่อน", "27. ฉันใช้โทรศัพท์ เล่นเกม หรือโซเชียลมีเดียเพื่อหลีกหนีความเครียด",
+            "28. เมื่อเกิดปัญหา ฉันรู้สึกว่ารับมือได้ยาก", "29. ความเครียดส่งผลต่อการใช้ชีวิตประจำวันของฉัน", "30. โดยรวมแล้ว ฉันรู้สึกว่าตนเองมีความเครียดในระดับสูง"
+        ];
+
+        // --- MODULE 4: HEALING HUB DATABASE ---
+        const healingDatabase = {
+            range1: { // Low Stress
+                movies: [{t:"La La Land", d:"ความฝันและบทเพลงอันสดใส"}, {t:"The Secret Life of Walter Mitty", d:"การก้าวออกจากเซฟโซน"}],
+                music: [{t:"Lo-fi Garden", d:"จังหวะเบาๆ เติมพลังบวก"}, {t:"Acoustic Pop", d:"ฟังสบายในวันพักผ่อน"}],
+                games: [{t:"Stardew Valley", d:"ใช้ชีวิตในฟาร์มที่สงบสุข"}, {t:"Alba: A Wildlife Adventure", d:"ถ่ายรูปสัตว์บนเกาะที่สวยงาม"}],
+                books: [{t:"Atomic Habits", d:"สร้างนิสัยที่ดีทีละนิด"}, {t:"I’m glad my mom died", d:"อ่านสนุกและสะท้อนชีวิต"}],
+                places: [{t:"สวนสาธารณะใจกลางเมือง", d:"เดินเล่นรับลมเย็นๆ"}, {t:"คาเฟ่สไตล์มินิมอล", d:"จิบกาแฟอ่านหนังสือที่ชอบ"}]
+            },
+            range2: { // Mild Stress
+                movies: [{t:"Inside Out", d:"เข้าใจและโอบรับทุกอารมณ์"}, {t:"Chef", d:"อิ่มเอมกับความสัมพันธ์และอาหาร"}],
+                music: [{t:"Chill R&B", d:"ผ่อนคลายอารมณ์ที่ตึงเครียด"}, {t:"Nature Sounds", d:"เสียงฝนและป่าช่วยให้สงบ"}],
+                games: [{t:"A Short Hike", d:"เดินเขาแบบไม่ต้องรีบร้อน"}, {t:"Unpacking", d:"จัดของเข้าที่อย่างเพลิดเพลิน"}],
+                books: [{t:"โต๊ะโตะจัง เด็กหญิงข้างหน้าต่าง", d:"ความบริสุทธิ์ใจที่ฮีลใจได้เสมอ"}, {t:"เพราะเป็นวัยรุ่นจึงเจ็บปวด", d:"ทำความเข้าใจกับความสับสน"}],
+                places: [{t:"หอศิลป์ / พิพิธภัณฑ์", d:"เสพงานศิลป์เพื่อความจรรโลงใจ"}, {t:"ร้านหนังสือสงบๆ", d:"หลบความวุ่นวายไปอยู่ในโลกตัวอักษร"}]
+            },
+            range3: { // Moderate Stress
+                movies: [{t:"Little Forest", d:"ทำอาหารและอยู่อย่างเรียบง่าย"}, {t:"My Neighbor Totoro", d:"จินตนาการที่ปลอบประโลมหัวใจ"}],
+                music: [{t:"Piano Solos", d:"ลดเสียงในหัวด้วยทำนองเปียโน"}, {t:"Ambient Space", d:"ล่องลอยไปกับเสียงที่ไม่มีที่สิ้นสุด"}],
+                games: [{t:"Gris", d:"ความงดงามของการก้าวผ่านความเศร้า"}, {t:"Spiritfarer", d:"เรียนรู้การจากลาและการดูแล"}],
+                books: [{t:"ปาฏิหาริย์ร้านชำของคุณนามิยะ", d:"สายสัมพันธ์ที่เชื่อมโยงกัน"}, {t:"ความสุขไม่ต้องสมบูรณ์แบบ", d:"ผ่อนคลายความคาดหวัง"}],
+                places: [{t:"ริมทะเล / ชายหาด", d:"ฟังเสียงคลื่นกระทบฝั่ง"}, {t:"วัดหรือสถานปฏิบัติธรรม", d:"ให้จิตใจอยู่กับความนิ่งสงบ"}]
+            },
+            range4: { // High Stress
+                movies: [{t:"Soul", d:"ค้นหาความหมายของ 'การใช้ชีวิต'"}, {t:"Kiki's Delivery Service", d:"ในวันที่หมดพลัง กิกิจะช่วยคุณเอง"}],
+                music: [{t:"Deep Meditation", d:"คลื่นเสียงช่วยให้จิตใจนิ่งขึ้น"}, {t:"Classical Comfort", d:"ดนตรีคลาสสิกที่ปลอบโยน"}],
+                games: [{t:"Dorfromantik", d:"วางแผ่นป้ายสร้างหมู่บ้านที่สงบ"}, {t:"Townscaper", d:"สร้างเมืองของเล่นแบบไม่มีเป้าหมาย"}],
+                books: [{t:"วันนี้พอก่อนนะ", d:"ความเรียบง่ายในวันเหนื่อยล้า"}, {t:"แด่เธอ...ผู้รู้สึกว่าตัวเองดีไม่พอ", d:"โอบกอดตัวเองให้มากขึ้น"}],
+                places: [{t:"ภูเขา / ป่าไม้", d:"ให้สีเขียวของธรรมชาติบำบัด"}, {t:"Home Sanctuary", d:"สร้างมุมสงบที่สุดในบ้านตัวเอง"}]
+            },
+            range5: { // Very High Stress
+                movies: [{t:"Paddington 2", d:"ความใจดีที่เยียวยาทุกอย่าง"}, {t:"The Boy, the Mole, the Fox...", d:"ถ้อยคำอ่อนโยนในวันที่เปราะบาง"}],
+                music: [{t:"White Noise / ASMR", d:"ตัดขาดจากโลกภายนอก"}, {t:"Tibetan Bowls", d:"ปรับจูนคลื่นสมองให้ผ่อนคลาย"}],
+                games: [{t:"Kind Words", d:"เขียนจดหมายให้กำลังใจคนแปลกหน้า"}, {t:"Cloud Gardens", d:"ดูต้นไม้เติบโตบนซากปรักหักพัง"}],
+                books: [{t:"สิ่งสำคัญคือหัวใจ", d:"สรุปแก่นชีวิตที่แสนเรียบง่าย"}, {t:"กล้าที่จะถูกเกลียด", d:"อิสรภาพจากการคาดหวังของผู้อื่น"}],
+                places: [{t:"ปรึกษาผู้เชี่ยวชาญ", d:"พื้นที่ปลอดภัยที่พร้อมรับฟังคุณ"}, {t:"สายด่วน 1323", d:"เพื่อนคุยยามยากตลอด 24 ชม."}]
+            }
+        };
+
+        let answers = new Array(questions.length).fill(null);
+        let currentIndex = 0;
+        const LOCAL_STORAGE_KEY = 'mindspace_stress_history_v1';
+
+        function initApp() {
+            const devContainer = document.getElementById('dev-team');
+            const devList = developers.map(name => `<span class="font-semibold text-mind-700 bg-mind-50 px-2 py-0.5 rounded-lg border border-mind-100">${name}</span>`).join(' และ ');
+            devContainer.innerHTML += devList;
+        }
+
+        function showScreen(screenId) {
+            ['welcome-screen', 'quiz-screen', 'result-screen', 'stats-screen'].forEach(id => {
+                const el = document.getElementById(id);
+                if (id === screenId) {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function startAssessment() {
+            answers = new Array(questions.length).fill(null);
+            currentIndex = 0;
+            showScreen('quiz-screen');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            document.getElementById('question-count').innerText = `ข้อที่ ${currentIndex + 1} / ${questions.length}`;
+            const pct = Math.round(((currentIndex + 1) / questions.length) * 100);
+            document.getElementById('progress-bar').style.width = `${pct}%`;
+            document.getElementById('question-text').innerText = questions[currentIndex];
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            const labels = ["ไม่เคย", "นาน ๆ ครั้ง", "บางครั้ง", "บ่อยครั้ง", "เป็นประจำ"];
+            
+            labels.forEach((label, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `w-full p-4 rounded-2xl border-2 text-left transition-all ${answers[currentIndex] === idx ? 'border-mind-600 bg-mind-50 font-bold' : 'border-slate-100 hover:border-mind-200'}`;
+                btn.innerHTML = `<span class="inline-block w-6 text-center font-bold mr-2 text-mind-600">${idx}</span> ${label}`;
+                btn.onclick = () => selectOption(idx);
+                container.appendChild(btn);
+            });
+
+            document.getElementById('prev-btn').disabled = (currentIndex === 0);
+        }
+
+        function selectOption(score) {
+            answers[currentIndex] = score;
+            if (currentIndex < questions.length - 1) {
+                currentIndex++;
+                renderQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderQuestion();
+            }
+        }
+
+        function showResults() {
+            showScreen('result-screen');
+
+            const total = answers.reduce((s, v) => s + v, 0);
+            document.getElementById('final-score').innerText = total;
+
+            let key, level, desc, recs, style;
+            if(total <= 24) { key="range1"; level="ต่ำ"; desc="สุขภาพจิตดี รับมือความกดดันได้ดี"; recs=["รักษาสมดุลชีวิตนี้ไว้", "แบ่งปันพลังบวกให้คนรอบข้าง"]; style="bg-emerald-100 text-emerald-800 border-emerald-200"; }
+            else if(total <= 48) { key="range2"; level="เล็กน้อย"; desc="เริ่มมีความล้าสะสม พักผ่อนให้มากขึ้น"; recs=["นอนหลับ 7-8 ชม.", "ทำกิจกรรมที่ชอบวันละ 15 นาที"]; style="bg-sky-100 text-sky-800 border-sky-200"; }
+            else if(total <= 72) { key="range3"; level="ปานกลาง"; desc="ความเครียดเริ่มส่งผลต่อร่างกายและสมาธิ"; recs=["ฝึกทำสมาธิ", "แบ่งงานใหญ่ให้เป็นงานย่อย"]; style="bg-amber-100 text-amber-800 border-amber-200"; }
+            else if(total <= 96) { key="range4"; level="สูง"; desc="เครียดสะสมมาก ควรหาทางระบายหรือพักผ่อนด่วน"; recs=["หยุดพักจากหน้าจอ", "ปรึกษาคนที่ไว้วางใจ"]; style="bg-orange-100 text-orange-800 border-orange-200"; }
+            else { key="range5"; level="สูงมาก"; desc="ความเครียดรุนแรง เสี่ยงภาวะหมดไฟและปัญหาสุขภาพ"; recs=["โทร 1323 สายด่วนสุขภาพจิต", "นัดหมายปรึกษาจิตแพทย์"]; style="bg-rose-100 text-rose-800 border-rose-200"; }
+
+            const badge = document.getElementById('result-badge');
+            badge.innerText = `ระดับความเครียด: ${level}`;
+            badge.className = `inline-block px-4 py-1 rounded-full text-sm font-bold shadow-sm ${style}`;
+            document.getElementById('result-description').innerText = desc;
+            document.getElementById('recommendations-list').innerHTML = recs.map(r => `<li>${r}</li>`).join('');
+
+            renderHealingHub(key);
+            saveResultToStorage({ total, level, key, style });
+        }
+
+        // --- MODULE 3: STATISTICS & HISTORY ENGINE ---
+        function getHistoryFromStorage() {
+            try {
+                const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+                return data ? JSON.parse(data) : [];
+            } catch (e) {
+                console.error("Failed to parse history", e);
+                return [];
+            }
+        }
+
+        function saveResultToStorage(resultObj) {
+            const history = getHistoryFromStorage();
+            const now = new Date();
+            const timeString = now.toLocaleDateString('th-TH', { 
+                year: 'numeric', month: 'short', day: 'numeric', 
+                hour: '2-digit', minute: '2-digit' 
+            });
+
+            const newItem = {
+                id: Date.now(),
+                timestamp: timeString,
+                score: resultObj.total,
+                level: resultObj.level,
+                key: resultObj.key,
+                style: resultObj.style
+            };
+
+            history.unshift(newItem); // Add newest first
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(history));
+            } catch (e) {
+                console.error("Failed to save history", e);
+            }
+        }
+
+        function openStatsScreen() {
+            showScreen('stats-screen');
+            renderStatistics();
+        }
+
+        function renderStatistics() {
+            const history = getHistoryFromStorage();
+            
+            // 1. KPI Summaries
+            const totalCount = history.length;
+            document.getElementById('stat-total-count').innerText = totalCount;
+
+            if (totalCount === 0) {
+                document.getElementById('stat-avg-score').innerText = "0";
+                document.getElementById('stat-frequent-level').innerText = "ไม่มีข้อมูล";
+                document.getElementById('stat-latest-score').innerText = "-";
+                document.getElementById('stat-latest-date').innerText = "ยังไม่มีการประเมิน";
+                document.getElementById('history-list-container').innerHTML = `
+                    <div class="text-center py-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-slate-400 text-sm">
+                        <i class="fa-solid fa-folder-open text-3xl mb-2 text-slate-300"></i>
+                        <p>ยังไม่มีประวัติการประเมิน เริ่มทำแบบทดสอบเพื่อบันทึกสถิติของคุณ</p>
+                    </div>
+                `;
+                document.getElementById('level-breakdown-container').innerHTML = `
+                    <div class="text-xs text-slate-400 text-center py-2">จะแสดงสัดส่วนเมื่อมีการบันทึกข้อมูลแล้ว</div>
+                `;
+                return;
+            }
+
+            // Average score
+            const sumScore = history.reduce((acc, curr) => acc + curr.score, 0);
+            const avgScore = Math.round(sumScore / totalCount);
+            document.getElementById('stat-avg-score').innerText = avgScore;
+
+            // Frequent level
+            const counts = { "ต่ำ":0, "เล็กน้อย":0, "ปานกลาง":0, "สูง":0, "สูงมาก":0 };
+            history.forEach(item => { if (counts[item.level] !== undefined) counts[item.level]++; });
+            
+            let maxLevel = "ต่ำ";
+            let maxVal = -1;
+            Object.keys(counts).forEach(lvl => {
+                if (counts[lvl] > maxVal) {
+                    maxVal = counts[lvl];
+                    maxLevel = lvl;
+                }
+            });
+            document.getElementById('stat-frequent-level').innerText = `ระดับ${maxLevel}`;
+
+            // Latest Result
+            const latest = history[0];
+            document.getElementById('stat-latest-score').innerText = latest.score;
+            document.getElementById('stat-latest-date').innerText = latest.timestamp;
+
+            // 2. Render Level Breakdown Progress Bars
+            const levelsConfig = [
+                { name: 'ต่ำ', key: 'range1', color: 'bg-emerald-500' },
+                { name: 'เล็กน้อย', key: 'range2', color: 'bg-sky-500' },
+                { name: 'ปานกลาง', key: 'range3', color: 'bg-amber-500' },
+                { name: 'สูง', key: 'range4', color: 'bg-orange-500' },
+                { name: 'สูงมาก', key: 'range5', color: 'bg-rose-500' }
+            ];
+
+            const breakdownContainer = document.getElementById('level-breakdown-container');
+            breakdownContainer.innerHTML = levelsConfig.map(lvl => {
+                const count = counts[lvl.name] || 0;
+                const percent = Math.round((count / totalCount) * 100);
+                return `
+                    <div>
+                        <div class="flex justify-between text-xs text-slate-600 font-medium mb-1">
+                            <span>ระดับ${lvl.name}</span>
+                            <span>${count} ครั้ง (${percent}%)</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full ${lvl.color} transition-all duration-500 rounded-full" style="width: ${percent}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // 3. Render History List Cards
+            const historyContainer = document.getElementById('history-list-container');
+            historyContainer.innerHTML = history.map(item => `
+                <div class="bg-white p-4 rounded-2xl border border-slate-100 flex flex-wrap items-center justify-between gap-3 shadow-sm hover:shadow-md transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-mind-50 text-mind-700 font-bold flex items-center justify-center text-sm border border-mind-100">
+                            ${item.score}
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold px-2 py-0.5 rounded-full ${item.style}">
+                                    ระดับ${item.level}
+                                </span>
+                            </div>
+                            <div class="text-xs text-slate-400 mt-1">
+                                <i class="fa-regular fa-clock mr-1"></i> ${item.timestamp}
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="deleteHistoryEntry(${item.id})" class="text-slate-400 hover:text-rose-500 p-2 rounded-lg hover:bg-rose-50 transition-all text-xs">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function deleteHistoryEntry(id) {
+            let history = getHistoryFromStorage();
+            history = history.filter(item => item.id !== id);
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(history));
+            renderStatistics();
+        }
+
+        function promptClearHistory() {
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').classList.add('hidden');
+        }
+
+        function confirmClearHistory() {
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
+            closeConfirmModal();
+            renderStatistics();
+        }
+
+        // --- MODULE 4: HEALING HUB RENDERER ---
+        function renderHealingHub(key) {
+            const data = healingDatabase[key];
+            const sections = [
+                { icon: 'fa-film', title: 'หนังฮีลใจ', items: data.movies },
+                { icon: 'fa-music', title: 'เพลงที่เหมาะกับคุณ', items: data.music },
+                { icon: 'fa-gamepad', title: 'เกมอินดี้คลายเครียด', items: data.games },
+                { icon: 'fa-book-open', title: 'หนังสือประโลมใจ', items: data.books },
+                { icon: 'fa-location-dot', title: 'สถานที่ชาร์จพลัง', items: data.places }
+            ];
+
+            const hub = document.getElementById('healing-sections');
+            hub.innerHTML = sections.map(sec => `
+                <div>
+                    <h4 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid ${sec.icon} text-mind-600"></i> ${sec.title}</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        ${sec.items.map(item => `
+                            <div class="bg-white p-4 rounded-2xl border border-slate-100 card-hover">
+                                <div class="font-bold text-slate-800 text-sm mb-1">${item.t}</div>
+                                <div class="text-xs text-slate-500">${item.d}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function resetAssessment() {
+            answers = new Array(questions.length).fill(null);
+            currentIndex = 0;
+            showScreen('welcome-screen');
+        }
+
+        // เริ่มต้นแอปพลิเคชัน
+        initApp();
+    </script>
+</body>
+</html>
