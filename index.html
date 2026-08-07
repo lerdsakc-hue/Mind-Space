@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th">
 <head> <meta name="google-site-verification" content="SNIvWJqXRBLE8-4TdJG-HAwmdR8pohGhld1M04CHOik" />
     <meta charset="UTF-8">
@@ -30,6 +30,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .card-hover { transition: all 0.2s ease; }
         .card-hover:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .history-card { cursor: pointer; }
     </style>
 </head>
 <body class="text-slate-800 antialiased flex flex-col justify-between min-h-screen">
@@ -123,7 +124,7 @@
             <div class="bg-white rounded-3xl shadow-xl p-6 md:p-10 mb-8 border border-teal-50">
                 <div class="text-center mb-6">
                     <h2 class="text-2xl font-bold text-slate-800">ผลการประเมินของคุณ</h2>
-                    <p class="text-xs text-emerald-600 font-medium mt-1"><i class="fa-solid fa-circle-check"></i> บันทึกข้อมูลเข้าสู่ระบบสถิติแล้ว</p>
+                    <p id="result-save-note" class="text-xs text-emerald-600 font-medium mt-1"><i class="fa-solid fa-circle-check"></i> บันทึกข้อมูลเข้าสู่ระบบสถิติแล้ว</p>
                 </div>
                 <div id="result-box" class="rounded-3xl p-6 text-center border mb-6">
                     <div class="text-4xl md:text-6xl font-extrabold mb-2"><span id="final-score">0</span><span class="text-xl opacity-50">/120</span></div>
@@ -221,6 +222,7 @@
                             <i class="fa-solid fa-trash-can mr-1"></i> ล้างประวัติทั้งหมด
                         </button>
                     </div>
+                    <p class="text-xs text-slate-400 mb-3"><i class="fa-solid fa-circle-info mr-1"></i> คลิกที่รายการเพื่อดูผลลัพธ์และคำแนะนำของครั้งนั้นอีกครั้ง</p>
 
                     <div id="history-list-container" class="space-y-3">
                         <!-- History cards injected here -->
@@ -281,12 +283,13 @@
         ];
 
         // --- MODULE 4: HEALING HUB DATABASE ---
+        // แต่ละรายการมี "icon" (Font Awesome) + "grad" (สีไล่ระดับพื้นหลังรูปภาพ) เพื่อใช้แสดงเป็นภาพปกแทน artwork จริงที่ติดลิขสิทธิ์
         const healingDatabase = {
             range1: { // Low Stress
                 movies: [{t:"La La Land", d:"ความฝันและบทเพลงอันสดใส"}, {t:"The Secret Life of Walter Mitty", d:"การก้าวออกจากเซฟโซน"}],
                 music: [{t:"Lo-fi Garden", d:"จังหวะเบาๆ เติมพลังบวก"}, {t:"Acoustic Pop", d:"ฟังสบายในวันพักผ่อน"}],
                 games: [{t:"Stardew Valley", d:"ใช้ชีวิตในฟาร์มที่สงบสุข"}, {t:"Alba: A Wildlife Adventure", d:"ถ่ายรูปสัตว์บนเกาะที่สวยงาม"}],
-                books: [{t:"Atomic Habits", d:"สร้างนิสัยที่ดีทีละนิด"}, {t:"I’m glad my mom died", d:"อ่านสนุกและสะท้อนชีวิต"}],
+                books: [{t:"Atomic Habits", d:"สร้างนิสัยที่ดีทีละนิด"}, {t:"I'm glad my mom died", d:"อ่านสนุกและสะท้อนชีวิต"}],
                 places: [{t:"สวนสาธารณะใจกลางเมือง", d:"เดินเล่นรับลมเย็นๆ"}, {t:"คาเฟ่สไตล์มินิมอล", d:"จิบกาแฟอ่านหนังสือที่ชอบ"}]
             },
             range2: { // Mild Stress
@@ -317,6 +320,15 @@
                 books: [{t:"สิ่งสำคัญคือหัวใจ", d:"สรุปแก่นชีวิตที่แสนเรียบง่าย"}, {t:"กล้าที่จะถูกเกลียด", d:"อิสรภาพจากการคาดหวังของผู้อื่น"}],
                 places: [{t:"ปรึกษาผู้เชี่ยวชาญ", d:"พื้นที่ปลอดภัยที่พร้อมรับฟังคุณ"}, {t:"สายด่วน 1323", d:"เพื่อนคุยยามยากตลอด 24 ชม."}]
             }
+        };
+
+        // ไอคอน + สีไล่ระดับประจำหมวดหมู่ (ใช้แทนภาพปกจริงเพื่อเลี่ยงปัญหาลิขสิทธิ์ของโปสเตอร์/ปกอัลบั้ม/ปกหนังสือ)
+        const categoryVisuals = {
+            movies: { icon: 'fa-film', grad: 'from-rose-400 to-orange-300' },
+            music:  { icon: 'fa-music', grad: 'from-violet-400 to-indigo-300' },
+            games:  { icon: 'fa-gamepad', grad: 'from-emerald-400 to-teal-300' },
+            books:  { icon: 'fa-book-open', grad: 'from-amber-400 to-yellow-300' },
+            places: { icon: 'fa-location-dot', grad: 'from-sky-400 to-cyan-300' }
         };
 
         let answers = new Array(questions.length).fill(null);
@@ -386,27 +398,45 @@
             }
         }
 
-        function showResults() {
-            showScreen('result-screen');
-
-            const total = answers.reduce((s, v) => s + v, 0);
-            document.getElementById('final-score').innerText = total;
-
+        // --- คำนวณผลลัพธ์จากคะแนนรวม (ใช้ได้ทั้งตอนทำแบบทดสอบใหม่ และตอนย้อนดูประวัติ) ---
+        function computeResultData(total) {
             let key, level, desc, recs, style;
             if(total <= 24) { key="range1"; level="ต่ำ"; desc="สุขภาพจิตดี รับมือความกดดันได้ดี"; recs=["รักษาสมดุลชีวิตนี้ไว้", "แบ่งปันพลังบวกให้คนรอบข้าง"]; style="bg-emerald-100 text-emerald-800 border-emerald-200"; }
             else if(total <= 48) { key="range2"; level="เล็กน้อย"; desc="เริ่มมีความล้าสะสม พักผ่อนให้มากขึ้น"; recs=["นอนหลับ 7-8 ชม.", "ทำกิจกรรมที่ชอบวันละ 15 นาที"]; style="bg-sky-100 text-sky-800 border-sky-200"; }
             else if(total <= 72) { key="range3"; level="ปานกลาง"; desc="ความเครียดเริ่มส่งผลต่อร่างกายและสมาธิ"; recs=["ฝึกทำสมาธิ", "แบ่งงานใหญ่ให้เป็นงานย่อย"]; style="bg-amber-100 text-amber-800 border-amber-200"; }
             else if(total <= 96) { key="range4"; level="สูง"; desc="เครียดสะสมมาก ควรหาทางระบายหรือพักผ่อนด่วน"; recs=["หยุดพักจากหน้าจอ", "ปรึกษาคนที่ไว้วางใจ"]; style="bg-orange-100 text-orange-800 border-orange-200"; }
             else { key="range5"; level="สูงมาก"; desc="ความเครียดรุนแรง เสี่ยงภาวะหมดไฟและปัญหาสุขภาพ"; recs=["โทร 1323 สายด่วนสุขภาพจิต", "นัดหมายปรึกษาจิตแพทย์"]; style="bg-rose-100 text-rose-800 border-rose-200"; }
+            return { key, level, desc, recs, style };
+        }
+
+        // --- แสดงผล UI หน้าผลลัพธ์ (แยกจากการบันทึกสถิติ เพื่อให้เรียกซ้ำได้ตอนย้อนดูประวัติ) ---
+        function renderResultUI(total, data, opts = {}) {
+            document.getElementById('final-score').innerText = total;
 
             const badge = document.getElementById('result-badge');
-            badge.innerText = `ระดับความเครียด: ${level}`;
-            badge.className = `inline-block px-4 py-1 rounded-full text-sm font-bold shadow-sm ${style}`;
-            document.getElementById('result-description').innerText = desc;
-            document.getElementById('recommendations-list').innerHTML = recs.map(r => `<li>${r}</li>`).join('');
+            badge.innerText = `ระดับความเครียด: ${data.level}`;
+            badge.className = `inline-block px-4 py-1 rounded-full text-sm font-bold shadow-sm ${data.style}`;
+            document.getElementById('result-description').innerText = data.desc;
+            document.getElementById('recommendations-list').innerHTML = data.recs.map(r => `<li>${r}</li>`).join('');
 
-            renderHealingHub(key);
-            saveResultToStorage({ total, level, key, style });
+            const saveNote = document.getElementById('result-save-note');
+            if (opts.fromHistory) {
+                saveNote.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> กำลังดูผลลัพธ์ย้อนหลัง${opts.timestamp ? ' — ' + opts.timestamp : ''}`;
+                saveNote.className = 'text-xs text-slate-500 font-medium mt-1';
+            } else {
+                saveNote.innerHTML = `<i class="fa-solid fa-circle-check"></i> บันทึกข้อมูลเข้าสู่ระบบสถิติแล้ว`;
+                saveNote.className = 'text-xs text-emerald-600 font-medium mt-1';
+            }
+
+            renderHealingHub(data.key);
+            showScreen('result-screen');
+        }
+
+        function showResults() {
+            const total = answers.reduce((s, v) => s + v, 0);
+            const data = computeResultData(total);
+            renderResultUI(total, data, { fromHistory: false });
+            saveResultToStorage({ total, level: data.level, key: data.key, style: data.style });
         }
 
         // --- MODULE 3: STATISTICS & HISTORY ENGINE ---
@@ -524,10 +554,10 @@
                 `;
             }).join('');
 
-            // 3. Render History List Cards
+            // 3. Render History List Cards (คลิกที่การ์ดเพื่อย้อนดูผลลัพธ์ของครั้งนั้น)
             const historyContainer = document.getElementById('history-list-container');
             historyContainer.innerHTML = history.map(item => `
-                <div class="bg-white p-4 rounded-2xl border border-slate-100 flex flex-wrap items-center justify-between gap-3 shadow-sm hover:shadow-md transition-all">
+                <div class="history-card bg-white p-4 rounded-2xl border border-slate-100 flex flex-wrap items-center justify-between gap-3 shadow-sm hover:shadow-md hover:border-mind-200 transition-all" onclick="viewHistoryEntry(${item.id})">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-xl bg-mind-50 text-mind-700 font-bold flex items-center justify-center text-sm border border-mind-100">
                             ${item.score}
@@ -543,11 +573,24 @@
                             </div>
                         </div>
                     </div>
-                    <button onclick="deleteHistoryEntry(${item.id})" class="text-slate-400 hover:text-rose-500 p-2 rounded-lg hover:bg-rose-50 transition-all text-xs">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </button>
+                    <div class="flex items-center gap-1">
+                        <span class="text-xs text-mind-600 font-medium hidden sm:inline mr-1"><i class="fa-solid fa-eye mr-1"></i>ดูผลลัพธ์</span>
+                        <button onclick="event.stopPropagation(); deleteHistoryEntry(${item.id})" class="text-slate-400 hover:text-rose-500 p-2 rounded-lg hover:bg-rose-50 transition-all text-xs">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
                 </div>
             `).join('');
+        }
+
+        // เปิดหน้าผลลัพธ์ (result-screen) จากรายการประวัติที่คลิก
+        function viewHistoryEntry(id) {
+            const history = getHistoryFromStorage();
+            const item = history.find(h => h.id === id);
+            if (!item) return;
+
+            const data = computeResultData(item.score); // คำนวณซ้ำจากคะแนน เพื่อให้ได้ desc/recs/healing hub ที่ตรงกัน
+            renderResultUI(item.score, data, { fromHistory: true, timestamp: item.timestamp });
         }
 
         function deleteHistoryEntry(id) {
@@ -575,27 +618,35 @@
         function renderHealingHub(key) {
             const data = healingDatabase[key];
             const sections = [
-                { icon: 'fa-film', title: 'หนังฮีลใจ', items: data.movies },
-                { icon: 'fa-music', title: 'เพลงที่เหมาะกับคุณ', items: data.music },
-                { icon: 'fa-gamepad', title: 'เกมอินดี้คลายเครียด', items: data.games },
-                { icon: 'fa-book-open', title: 'หนังสือประโลมใจ', items: data.books },
-                { icon: 'fa-location-dot', title: 'สถานที่ชาร์จพลัง', items: data.places }
+                { icon: 'fa-film', title: 'หนังฮีลใจ', items: data.movies, catKey: 'movies' },
+                { icon: 'fa-music', title: 'เพลงที่เหมาะกับคุณ', items: data.music, catKey: 'music' },
+                { icon: 'fa-gamepad', title: 'เกมอินดี้คลายเครียด', items: data.games, catKey: 'games' },
+                { icon: 'fa-book-open', title: 'หนังสือประโลมใจ', items: data.books, catKey: 'books' },
+                { icon: 'fa-location-dot', title: 'สถานที่ชาร์จพลัง', items: data.places, catKey: 'places' }
             ];
 
             const hub = document.getElementById('healing-sections');
-            hub.innerHTML = sections.map(sec => `
+            hub.innerHTML = sections.map(sec => {
+                const visual = categoryVisuals[sec.catKey];
+                return `
                 <div>
                     <h4 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid ${sec.icon} text-mind-600"></i> ${sec.title}</h4>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         ${sec.items.map(item => `
-                            <div class="bg-white p-4 rounded-2xl border border-slate-100 card-hover">
-                                <div class="font-bold text-slate-800 text-sm mb-1">${item.t}</div>
-                                <div class="text-xs text-slate-500">${item.d}</div>
+                            <div class="bg-white rounded-2xl border border-slate-100 card-hover overflow-hidden">
+                                <div class="w-full h-28 bg-gradient-to-br ${visual.grad} flex items-center justify-center">
+                                    <i class="fa-solid ${visual.icon} text-white text-3xl opacity-90"></i>
+                                </div>
+                                <div class="p-4">
+                                    <div class="font-bold text-slate-800 text-sm mb-1">${item.t}</div>
+                                    <div class="text-xs text-slate-500">${item.d}</div>
+                                </div>
                             </div>
                         `).join('')}
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
 
         function resetAssessment() {
